@@ -1,4 +1,11 @@
+using Microsoft.EntityFrameworkCore;
+using StealAllTheCats.Data.Context;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<StealAllTheCatsContext>(options =>
+    options.UseInMemoryDatabase(databaseName: "StealAllTheCatsDb"));
+
 
 // Add services to the container.
 
