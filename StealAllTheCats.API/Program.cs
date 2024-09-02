@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using StealAllTheCats.Business.Interfaces;
+using StealAllTheCats.Business.Services;
 using StealAllTheCats.Data.Context;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<StealAllTheCatsContext>(options =>
     options.UseInMemoryDatabase(databaseName: "StealAllTheCatsDb"));
 
+builder.Services.AddAutoMapper(typeof(Program));
+
+builder.Services.AddScoped<ICatRepository, CatService>();
 
 // Add services to the container.
 

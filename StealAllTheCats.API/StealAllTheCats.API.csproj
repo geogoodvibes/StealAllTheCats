@@ -8,10 +8,13 @@
 
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.7.3" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\StealAllTheCats.Business\StealAllTheCats.Business.csproj" />
     <ProjectReference Include="..\StealAllTheCats.Data\StealAllTheCats.Data.csproj" />
+    <ProjectReference Include="..\StealAllTheCats.Utilities\StealAllTheCats.Utilities.csproj" />
   </ItemGroup>
 
 </Project>

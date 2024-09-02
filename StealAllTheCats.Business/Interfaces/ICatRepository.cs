@@ -1,4 +1,5 @@
 ﻿using StealAllTheCats.Dto.Cats;
+using StealAllTheCats.Utilities;
 
 namespace StealAllTheCats.Business.Interfaces
 {
@@ -7,16 +8,18 @@ namespace StealAllTheCats.Business.Interfaces
     /// </summary>
     public interface ICatRepository
     {
-        Task<List<GetCatResponseDto>> GetCatsAsync();
+        Task<PaginatedResult<GetCatResponseDto>> GetCatsAsync(
+            string tag,
+            int page,
+            int pageSize);
 
-        Task<GetCatResponseDto> GetCatAsync(int catId);
+        Task<GetCatResponseDto> GetCatAsync(
+            int catId);
 
-        //Task<int> AddCatAsync(AddCatRequestDto addCatDto);
+        Task<int> AddCatAsync(
+            AddCatRequestDto addCatDto);
 
-        //Task UpdateCatAsync(int catId, UpdateCatRequestDto updateCatDto);
-
-        Task DeleteCatAsync(int catId);
-
-        Task DownloadFileById(int catId);
+        Task DownloadImageFileById(
+            int catId);
     }
 }
