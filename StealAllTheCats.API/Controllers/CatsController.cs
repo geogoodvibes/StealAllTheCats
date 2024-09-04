@@ -4,6 +4,8 @@ using StealAllTheCats.Dto.Cats;
 using StealAllTheCats.Utilities;
 using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace StealAllTheCats.API.Controllers
 {
@@ -39,21 +41,12 @@ namespace StealAllTheCats.API.Controllers
         [SwaggerResponse(StatusCodes.Status409Conflict)]
         [SwaggerResponse(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> FetchCats(
-            [Range(1, int.MaxValue, ErrorMessage = "{0} must be greater than or equal to {1}")]
-        int catCount=25)
-
+        [Range(1, int.MaxValue, ErrorMessage = "{0} must be greater than or equal to {1}")] int catCount = 25)
         {
             try
             {
-                var url = "https://api.thecatapi.com/v1/images/search?limit=10&api_key=live_MVgybJvA7wRmh81FWs3fLgD1BudHkEvMI79gPbSWOtJHanQfOdPhARvxjEnBwJJZ";
-                using var httpClient = new HttpClient();
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
-                var response = httpClient.Send(request);
-                using var reader = new StreamReader(response.Content.ReadAsStream());
-                var responseBody = reader.ReadToEnd();
-
-                //var cat = await _catService.AddCatAsync(addCatDto).ConfigureAwait(true);
-                return Ok(responseBody);
+                List<GetCatApiResponseDto> data = await FetchCatsFromApi(catCount);
+                return Ok(data);
             }
             catch (Exception e)
             {
@@ -67,7 +60,7 @@ namespace StealAllTheCats.API.Controllers
         /// <param name="catId">The cat identifier parameter.</param>
         /// <returns>Task&lt;GetCatResponseDto&gt;&gt;.</returns>
         [HttpGet("{catId:int}", Name = nameof(GetCat))]
-        [SwaggerResponse(StatusCodes.Status200OK, "Cat fetched successfully!", typeof(GetCatResponseDto))]
+        [SwaggerResponse(StatusCodes.Status200OK, "Cat fetched successfully!", typeof(GetCatApiResponseDto))]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         [SwaggerResponse(StatusCodes.Status500InternalServerError)]
@@ -93,11 +86,11 @@ namespace StealAllTheCats.API.Controllers
         /// <param name="pageSize">The page size parameter. Default value is 10.</param>
         /// <returns></returns>
         [HttpGet("", Name = nameof(GetCats))]
-        [SwaggerResponse(StatusCodes.Status200OK, "Cat fetched successfully!", typeof(List<GetCatResponseDto>))]
+        [SwaggerResponse(StatusCodes.Status200OK, "Cat fetched successfully!", typeof(List<GetCatApiResponseDto>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         [SwaggerResponse(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<PaginatedResult<GetCatResponseDto>>> GetCats(string tag,
+        public async Task<ActionResult<PaginatedResult<GetCatApiResponseDto>>> GetCats(string tag,
         [Range(1, int.MaxValue, ErrorMessage = "{0} must be greater than or equal to {1}")] int page,
         [Range(1, int.MaxValue, ErrorMessage = "{0} must be greater than or equal to {1}")] int pageSize)
         {
@@ -148,5 +141,39 @@ namespace StealAllTheCats.API.Controllers
         //    //}
         //    return new EmptyResult();
         //}
+
+        /// <summary>
+        /// Gets and serializes cats from CaaS API.
+        /// </summary>
+        /// <param name="catCount">How many cats to fetch.</param>
+        /// <returns></returns>
+        static async Task<List<GetCatApiResponseDto>> FetchCatsFromApi(int catCount)
+        {
+            var data = new List<GetCatApiResponseDto>();
+
+            while (data.Count < catCount)
+            {
+                //This limit is set conditionally, in order in last iteration to get only remaining number of cats.
+                var limit = (data.Any() && data.Count > 10 && data.Count < catCount) ? 10 - (catCount - data.Count) : 10;
+
+                var url = $"https://api.thecatapi.com/v1/images/search?limit={limit}&api_key=live_MVgybJvA7wRmh81FWs3fLgD1BudHkEvMI79gPbSWOtJHanQfOdPhARvxjEnBwJJZ";
+                using var httpClient = new HttpClient();
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                var response = await httpClient.SendAsync(request);
+                using var reader = new StreamReader(response.Content.ReadAsStream());
+                var responseBody = reader.ReadToEnd();
+
+                var options = new JsonSerializerOptions()
+                {
+                    NumberHandling = JsonNumberHandling.AllowReadingFromString |
+                    JsonNumberHandling.WriteAsString
+                };
+
+                data.AddRange(JsonSerializer.Deserialize<List<GetCatApiResponseDto>>(responseBody, options));
+                data = data.DistinctBy(x => x.Id).ToList();
+            }
+
+            return data;
+        }
     }
 }

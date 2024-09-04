@@ -41,7 +41,7 @@ namespace StealAllTheCats.Business.Services
         /// <param name="pageSize">The page size parameter. Default value is 10.</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<PaginatedResult<GetCatResponseDto>> GetCatsAsync(string tag, int page, int pageSize)
+        public async Task<PaginatedResult<GetCatApiResponseDto>> GetCatsAsync(string tag, int page, int pageSize)
         {
             try
             {
@@ -50,13 +50,13 @@ namespace StealAllTheCats.Business.Services
                 var cats = await catsQueryable.AsNoTracking().Paginate(pageSize, page)
                     .ConfigureAwait(false);
 
-                var finalResults = _mapper.Map<PaginatedResult<GetCatResponseDto>>(cats);
+                var finalResults = _mapper.Map<PaginatedResult<GetCatApiResponseDto>>(cats);
 
                 return finalResults;
             }
             catch (Exception e)
             {
-                throw new Exception(nameof(GetCatResponseDto), e.InnerException);
+                throw new Exception(nameof(GetCatApiResponseDto), e.InnerException);
             }
         }
 
@@ -66,7 +66,7 @@ namespace StealAllTheCats.Business.Services
         /// <param name="catId">The cat identifier.</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<GetCatResponseDto> GetCatAsync(int catId)
+        public async Task<GetCatApiResponseDto> GetCatAsync(int catId)
         {
             try
             {
@@ -77,13 +77,13 @@ namespace StealAllTheCats.Business.Services
                 var catResult = await catQueryable.FirstOrDefaultAsync(d => d.Id == catId)
                     .ConfigureAwait(false);
 
-                var cat = _mapper.Map<GetCatResponseDto>(catResult);
+                var cat = _mapper.Map<GetCatApiResponseDto>(catResult);
 
                 return cat;
             }
             catch (Exception e)
             {
-                throw new Exception(nameof(GetCatResponseDto), e.InnerException);
+                throw new Exception(nameof(GetCatApiResponseDto), e.InnerException);
             }
         }
 
@@ -114,11 +114,11 @@ namespace StealAllTheCats.Business.Services
             }
         }
 
-        public async Task<int> AddCatAsync(AddCatRequestDto addCatDto)
+        public async Task<int> AddCatAsync(List<AddCatRequestDto> addCatListDto)
         {
-            if (addCatDto == null)
+            if (addCatListDto == null)
             {
-                throw new ArgumentNullException(nameof(addCatDto), "Supplied add Cat object was null");
+                throw new ArgumentNullException(nameof(addCatListDto), "Supplied add Cat list was null");
             }
 
             //var existingCat = await _context.Cats

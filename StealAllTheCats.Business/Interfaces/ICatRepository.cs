@@ -8,16 +8,15 @@ namespace StealAllTheCats.Business.Interfaces
     /// </summary>
     public interface ICatRepository
     {
-        Task<PaginatedResult<GetCatResponseDto>> GetCatsAsync(
+        Task<PaginatedResult<GetCatApiResponseDto>> GetCatsAsync(
             string tag,
             int page,
             int pageSize);
 
-        Task<GetCatResponseDto> GetCatAsync(
+        Task<GetCatApiResponseDto> GetCatAsync(
             int catId);
 
-        Task<int> AddCatAsync(
-            AddCatRequestDto addCatDto);
+        Task<int> AddCatAsync(List<AddCatRequestDto> addCatListDto);
 
         Task DownloadImageFileById(
             int catId);
