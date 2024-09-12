@@ -6,12 +6,12 @@
     public class GetTagResponseDto
     {
         /// <summary>
-        /// Id of the tag
+        /// Gets or sets the identifier of the tag.
         /// </summary>
         public int Id { get; set; }
 
         /// <summary>
-        /// Name of the tag
+        /// Gets or sets the name of the tag.
         /// </summary>
         public string? Name { get; set; }
 
@@ -21,7 +21,7 @@
         public int? CatId { get; set; }
 
         /// <summary>
-        /// DateTime creation of the tag
+        /// Gets or sets the date creation of the tag.
         /// </summary>
         public DateTime Created { get; set; }
     }

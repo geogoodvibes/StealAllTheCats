@@ -3,50 +3,87 @@ using Microsoft.EntityFrameworkCore;
 
 namespace StealAllTheCats.Utilities
 {
-    public class PaginatedResult<T> : ActionResult
+    /// <summary>
+    /// Class PaginatedResult.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class PaginatedResult<T>
     {
         private const int defaultPageSize = 10;
         private const int maxPageSize = 20;
 
-        public int total { get; private set; }
-        public int limit { get; private set; }
-        public int page { get; private set; }
-        public List<T> objects { get; private set; }
+        /// <summary>
+        /// Gets the total count of items.
+        /// </summary>
+        public int TotalCount { get; private set; }
 
+        /// <summary>
+        /// Gets the page size.
+        /// </summary>
+        public int PageSize { get; private set; }
+
+        /// <summary>
+        /// Gets the page number.
+        /// </summary>
+        public int Page { get; private set; }
+
+        /// <summary>
+        /// Gets the list of items.
+        /// </summary>
+        public List<T> Items { get; private set; }
+
+        /// <summary>
+        /// PaginatedResult Constructor.
+        /// </summary>
+        public PaginatedResult()
+        {
+
+        }
+
+        /// <summary>
+        /// PaginatedResult Constructor.
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
         internal PaginatedResult(int pageNumber, int pageSize = defaultPageSize)
         {
-            limit = pageSize;
-            page = pageNumber;
+            this.PageSize = pageSize;
+            Page = pageNumber;
 
-            if (limit < 0 || limit > maxPageSize)
+            if (this.PageSize < 0 || this.PageSize > maxPageSize)
             {
-                limit = defaultPageSize;
+                this.PageSize = defaultPageSize;
             }
             if (pageNumber < 0)
             {
-                page = 0;
+                Page = 0;
             }
         }
 
+        /// <summary>
+        /// Sets pagination.
+        /// </summary>
+        /// <param name="queryable"></param>
+        /// <returns></returns>
         internal async Task<PaginatedResult<T>> Paginate(IQueryable<T> queryable)
         {
-            total = queryable.Count();
+            TotalCount = queryable.Count();
 
-            if (limit > total)
+            if (PageSize > TotalCount)
             {
-                limit = total;
-                page = 0;
+                PageSize = TotalCount;
+                Page = 0;
             }
 
-            int skip = page * limit;
-            if (skip + limit > total)
+            int skip = Page * PageSize;
+            if (skip + PageSize > TotalCount)
             {
-                skip = total - limit;
-                page = total / limit - 1;
+                skip = TotalCount - PageSize;
+                Page = TotalCount / PageSize - 1;
             }
 
-            objects = await queryable.Skip(skip)
-                .Take(limit)
+            Items = await queryable.Skip(skip)
+                .Take(PageSize)
                 .ToListAsync();
             return this;
         }

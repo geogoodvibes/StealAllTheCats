@@ -3,9 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using StealAllTheCats.Business.Interfaces;
 using StealAllTheCats.Data.Context;
 using StealAllTheCats.Data.Entities;
-using StealAllTheCats.Dto;
 using StealAllTheCats.Dto.Cats;
-using StealAllTheCats.Utilities.Helpers;
+using StealAllTheCats.Utilities;
 
 namespace StealAllTheCats.Business.Services
 {
@@ -42,29 +41,19 @@ namespace StealAllTheCats.Business.Services
         /// <param name="pageSize">The page size parameter. Default value is 10.</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<PaginatedResultDto<GetCatResponseDto>> GetCatsAsync(int page, int pageSize)
+        public async Task<PaginatedResult<GetCatResponseDto>> GetCatsAsync(int page, int pageSize)
         {
             try
             {
-                var cats = await _context
-                    .Cats
-                    .Include(x => x.Tags)
-                    .Skip(page - 1)
-                    .Take(pageSize)
-                    .ToListAsync();
 
-                var count = await _context
-                    .Cats
-                    .Include(x => x.Tags)
-                    .CountAsync();
+                var catsQueryable = _context.Cats.AsNoTracking().Include(x => x.Tags);
 
-                var results = _mapper.Map<List<GetCatResponseDto>>(cats);
+                var cats = await catsQueryable.AsNoTracking().Paginate(pageSize, page)
+                    .ConfigureAwait(false);
 
-                return new PaginatedResultDto<GetCatResponseDto>
-                {
-                    Items = results,
-                    TotalCount = results.Count,
-                };
+                var finalResults = _mapper.Map<PaginatedResult<GetCatResponseDto>>(cats);
+
+                return finalResults;
             }
             catch (Exception e)
             {
@@ -80,31 +69,21 @@ namespace StealAllTheCats.Business.Services
         /// <param name="pageSize">The page size parameter. Default value is 10.</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<PaginatedResultDto<GetCatResponseDto>> GetCatsAsync(string tag, int page, int pageSize)
+        public async Task<PaginatedResult<GetCatResponseDto>> GetCatsAsync(string tag, int page, int pageSize)
         {
             try
             {
-                var cats = await _context
-                    .Cats
+                var catsQueryable = _context
+                    .Cats.AsNoTracking()
                     .Include(x => x.Tags)
-                    .Where(cats => cats.Tags.Any(t => t.Name == tag))
-                    .Skip(page - 1)
-                    .Take(pageSize)
-                    .ToListAsync();
+                    .Where(cats => cats.Tags.Any(t => t.Name == tag));
 
-                var count = await _context
-                    .Cats
-                    .Include(x => x.Tags)
-                    .Where(cats => cats.Tags.Any(t => t.Name == tag))
-                    .CountAsync();
+                var cats = await catsQueryable.AsNoTracking().Paginate(pageSize, page)
+                    .ConfigureAwait(false);
 
-                var results = _mapper.Map<List<GetCatResponseDto>>(cats);
+                var finalResults = _mapper.Map<PaginatedResult<GetCatResponseDto>>(cats);
 
-                return new PaginatedResultDto<GetCatResponseDto>
-                {
-                    Items = results,
-                    TotalCount = results.Count,
-                };
+                return finalResults;
             }
             catch (Exception e)
             {
@@ -162,7 +141,7 @@ namespace StealAllTheCats.Business.Services
 
                 if (existingCat != null)
                 {
-                    throw new Exception($"A Cat with API Id {existingCat.CatApiId} already exists!");
+                    continue;
                 }
 
                 //Cat
@@ -170,43 +149,63 @@ namespace StealAllTheCats.Business.Services
                 cat.Created = DateTime.Now;
 
                 //Breeds
-                if (addCat.Breeds?.Length > 0)
-                {
-                    foreach (var breed in addCat.Breeds)
-                    {
-                        var tags = breed.Temperament?.Replace(" ", "").Split(',');
-                        foreach (var tag in tags)
-                        {
-                            cat.Tags.Add(new Tag { Name = tag, Created = DateTime.Now });
-                        }
-                    }
-                }
+                AddBreeds(addCat, cat);
 
                 //Image File
-                if (addCat.Image.Length > 0)
-                {
-                    using (var ms = new MemoryStream(addCat.Image))
-                    {
-                        string ext = System.IO.Path.GetExtension(addCat.Url);
-
-                        var folder = Path.Combine(Directory.GetCurrentDirectory(), "Cat Photos");
-
-                        if (!Directory.Exists(folder))
-                            System.IO.Directory.CreateDirectory(folder);
-
-                        var path = Path.Combine(folder, $"{addCat.CatApiId}{ext}");
-
-                        using (var fs = new FileStream(path, FileMode.Create))
-                        {
-                            ms.WriteTo(fs);
-                            cat.ImagePath = path;
-                        }
-                    }
-                }
+                AddImageFile(addCat, cat);
 
                 await _context.Cats.AddAsync(cat).ConfigureAwait(false);
             }
             return await _context.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Add Breeds.
+        /// </summary>
+        /// <param name="addCat"></param>
+        /// <param name="cat"></param>
+        private void AddBreeds(AddCatRequestDto addCat, Cat cat)
+        {
+            if (addCat.Breeds?.Length > 0)
+            {
+                foreach (var breed in addCat.Breeds)
+                {
+                    var tags = breed.Temperament?.Replace(" ", "").Split(',');
+                    foreach (var tag in tags)
+                    {
+                        cat.Tags.Add(new Tag { Name = tag, Created = DateTime.Now });
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Add Image File.
+        /// </summary>
+        /// <param name="addCat"></param>
+        /// <param name="cat"></param>
+        private void AddImageFile(AddCatRequestDto addCat, Cat cat)
+        {
+            if (addCat.Image.Length > 0)
+            {
+                using (var ms = new MemoryStream(addCat.Image))
+                {
+                    string ext = System.IO.Path.GetExtension(addCat.Url);
+
+                    var folder = Path.Combine(Directory.GetCurrentDirectory(), "Cat Photos");
+
+                    if (!Directory.Exists(folder))
+                        System.IO.Directory.CreateDirectory(folder);
+
+                    var path = Path.Combine(folder, $"{addCat.CatApiId}{ext}");
+
+                    using (var fs = new FileStream(path, FileMode.Create))
+                    {
+                        ms.WriteTo(fs);
+                        cat.ImagePath = path;
+                    }
+                }
+            }
         }
     }
 }

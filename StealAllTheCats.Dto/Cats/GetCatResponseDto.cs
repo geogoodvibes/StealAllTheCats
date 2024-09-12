@@ -1,42 +1,41 @@
 ﻿using StealAllTheCats.Dto.Tags;
-using System.ComponentModel.DataAnnotations;
 
 namespace StealAllTheCats.Dto.Cats
 {
     public class GetCatResponseDto
     {
         /// <summary>
-        /// ID of the cat
+        /// Gets or sets the identifier of the cat.
         /// </summary>
         public int Id { get; set; }
 
         /// <summary>
-        /// ID of the image returned from CaaS API
+        /// Gets or sets the identifier of the image returned from CaaS API.
         /// </summary>
         public string? CatApiId { get; set; }
 
         /// <summary>
-        /// Width of the image returned from CaaS API
+        /// Gets or sets the width of the image returned from CaaS API.
         /// </summary>
         public int? Width { get; set; }
 
         /// <summary>
-        /// Height of the image returned from CaaS API
+        /// Gets or sets the height of the image returned from CaaS API.
         /// </summary>
         public int? Height { get; set; }
 
         /// <summary>
-        /// Image of the cat
+        /// Gets or sets the Image of the cat.
         /// </summary>
         public string? ImagePath { get; set; }
 
         /// <summary>
-        /// Image filename
+        /// Gets or sets the image url returned from CaaS API.
         /// </summary>
         public string? Url { get; set; }
 
         /// <summary>
-        /// DateTime creation of the cat
+        /// Gets or sets the date creation of the cat.
         /// </summary>
         public DateTime? Created { get; set; }
 

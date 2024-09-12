@@ -16,7 +16,7 @@ namespace StealAllTheCats.Business.Interfaces
         /// <param name="page">The page parameter.</param>
         /// <param name="pageSize">The pageSize parameter.</param>
         /// <returns></returns>
-        Task<PaginatedResultDto<GetCatResponseDto>> GetCatsAsync(
+        Task<PaginatedResult<GetCatResponseDto>> GetCatsAsync(
             int page,
             int pageSize);
 
@@ -27,7 +27,7 @@ namespace StealAllTheCats.Business.Interfaces
         /// <param name="page">The page parameter.</param>
         /// <param name="pageSize">The pageSize parameter.</param>
         /// <returns></returns>
-        Task<PaginatedResultDto<GetCatResponseDto>> GetCatsAsync(
+        Task<PaginatedResult<GetCatResponseDto>> GetCatsAsync(
             string tag,
             int page,
             int pageSize);

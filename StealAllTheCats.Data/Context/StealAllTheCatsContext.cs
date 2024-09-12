@@ -27,12 +27,12 @@ namespace StealAllTheCats.Data.Context
         }
 
         /// <summary>
-        /// Gets or sets the Cats.
+        /// Gets or sets the cats.
         /// </summary>
         public virtual DbSet<Cat> Cats { get; set; }
 
         /// <summary>
-        /// Gets or sets the Cats.
+        /// Gets or sets the tags.
         /// </summary>
         public virtual DbSet<Tag> Tags { get; set; }
     }
