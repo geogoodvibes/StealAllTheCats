@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using StealAllTheCats.Dto.Tags;
+using System.ComponentModel.DataAnnotations;
 
-namespace StealAllTheCats.Data.Entities
+namespace StealAllTheCats.Dto.Cats
 {
-    public class Cat
+    public class GetCatResponseDto
     {
         /// <summary>
         /// ID of the cat
@@ -12,48 +13,36 @@ namespace StealAllTheCats.Data.Entities
         /// <summary>
         /// ID of the image returned from CaaS API
         /// </summary>
-        [Required]
-        public string CatApiId { get; set; }
+        public string? CatApiId { get; set; }
 
         /// <summary>
         /// Width of the image returned from CaaS API
         /// </summary>
-        [Required]
-        public int Width { get; set; }
+        public int? Width { get; set; }
 
         /// <summary>
         /// Height of the image returned from CaaS API
         /// </summary>
-        [Required]
-        public int Height { get; set; }
+        public int? Height { get; set; }
 
         /// <summary>
         /// Image of the cat
         /// </summary>
-        [Required]
-        [MaxLength(215)]
-        public string ImagePath { get; set; }
+        public string? ImagePath { get; set; }
 
         /// <summary>
         /// Image filename
         /// </summary>
-        [MaxLength(256)]
-        [Required]
-        public string Url { get; set; }
+        public string? Url { get; set; }
 
         /// <summary>
         /// DateTime creation of the cat
         /// </summary>
-        public DateTime Created { get; set; }
-
-        public virtual ICollection<Tag> Tags { get; set; } = new HashSet<Tag>();
+        public DateTime? Created { get; set; }
 
         /// <summary>
-        /// Contructor.
+        /// List of tags.
         /// </summary>
-        public Cat()
-        {
-
-        }
+        public virtual ICollection<GetTagResponseDto>? Tags { get; set; }
     }
 }

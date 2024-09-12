@@ -12,7 +12,12 @@ namespace StealAllTheCats.Data.Context
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseInMemoryDatabase(databaseName: "StealAllTheCatsDb");
+            //optionsBuilder.UseInMemoryDatabase(databaseName: "StealAllTheCatsDb");
+            optionsBuilder
+            .EnableDetailedErrors()
+            .EnableSensitiveDataLogging();
+
+            base.OnConfiguring(optionsBuilder);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

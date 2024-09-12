@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StealAllTheCats.Data.Entities
+﻿namespace StealAllTheCats.Data.Entities
 {
     /// <summary>
     /// Class Tag.
@@ -36,5 +30,9 @@ namespace StealAllTheCats.Data.Entities
         /// </summary>
         public DateTime Created { get; set; }
 
+        public Tag()
+        {
+
+        }
     }
 }

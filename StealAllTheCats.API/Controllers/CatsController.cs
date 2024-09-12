@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using StealAllTheCats.Business.Interfaces;
 using StealAllTheCats.Dto.Cats;
-using StealAllTheCats.Utilities;
+using StealAllTheCats.Utilities.Helpers;
 using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
@@ -18,15 +19,15 @@ namespace StealAllTheCats.API.Controllers
         /// </summary>
         private readonly ICatRepository _catService;
 
-        ///// <summary>
-        ///// The <see cref="ITagRepository"/>.
-        ///// </summary>
-        //private readonly ITagRepository _tagService;
+        /// <summary>
+        /// The <see cref="IMapper"/>.
+        /// </summary>
+        private readonly IMapper _mapper;
 
-        public CatsController(ICatRepository catService/*, ITagRepository tagService*/)
+        public CatsController(ICatRepository catService, IMapper mapper)
         {
             _catService = catService;
-            //_tagService = tagService;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -45,8 +46,20 @@ namespace StealAllTheCats.API.Controllers
         {
             try
             {
-                List<GetCatApiResponseDto> data = await FetchCatsFromApi(catCount);
-                return Ok(data);
+                List<GetCatApiResponseDto> data = await FetchCatsFromApiAsync(catCount);
+
+                var addCatList = _mapper.Map<List<AddCatRequestDto>>(data);
+
+                await GetImageFilesFromApiAsync(addCatList).ConfigureAwait(false);
+
+                var result = await _catService.AddCatAsync(addCatList)
+                     .ConfigureAwait(true);
+
+                if (result > 0)
+                {
+                    return Ok(addCatList);
+                }
+                return StatusCode(StatusCodes.Status404NotFound);
             }
             catch (Exception e)
             {
@@ -60,7 +73,7 @@ namespace StealAllTheCats.API.Controllers
         /// <param name="catId">The cat identifier parameter.</param>
         /// <returns>Task&lt;GetCatResponseDto&gt;&gt;.</returns>
         [HttpGet("{catId:int}", Name = nameof(GetCat))]
-        [SwaggerResponse(StatusCodes.Status200OK, "Cat fetched successfully!", typeof(GetCatApiResponseDto))]
+        [SwaggerResponse(StatusCodes.Status200OK, "Cat fetched successfully!", typeof(GetCatResponseDto))]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         [SwaggerResponse(StatusCodes.Status500InternalServerError)]
@@ -85,14 +98,14 @@ namespace StealAllTheCats.API.Controllers
         /// <param name="page">The page parameter.</param>
         /// <param name="pageSize">The page size parameter. Default value is 10.</param>
         /// <returns></returns>
-        [HttpGet("", Name = nameof(GetCats))]
+        [HttpGet("tag", Name = nameof(GetCatsByTag))]
         [SwaggerResponse(StatusCodes.Status200OK, "Cat fetched successfully!", typeof(List<GetCatApiResponseDto>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         [SwaggerResponse(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<PaginatedResult<GetCatApiResponseDto>>> GetCats(string tag,
-        [Range(1, int.MaxValue, ErrorMessage = "{0} must be greater than or equal to {1}")] int page,
-        [Range(1, int.MaxValue, ErrorMessage = "{0} must be greater than or equal to {1}")] int pageSize)
+        public async Task<IActionResult> GetCatsByTag(string? tag = null,
+        [Range(1, int.MaxValue, ErrorMessage = "{0} must be greater than or equal to {1}")] int page = 1,
+        [Range(1, int.MaxValue, ErrorMessage = "{0} must be greater than or equal to {1}")] int pageSize = 10)
         {
             try
             {
@@ -106,55 +119,79 @@ namespace StealAllTheCats.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Get a paged list of saved cats filtered by tag.
+        /// </summary>
+        /// <param name="tag">The tag parameter.</param>
+        /// <param name="page">The page parameter.</param>
+        /// <param name="pageSize">The page size parameter. Default value is 10.</param>
+        /// <returns></returns>
+        [HttpGet("", Name = nameof(GetCats))]
+        [SwaggerResponse(StatusCodes.Status200OK, "Cat fetched successfully!", typeof(List<GetCatApiResponseDto>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetCats(
+        [Range(1, int.MaxValue, ErrorMessage = "{0} must be greater than or equal to {1}")] int page = 1,
+        [Range(1, int.MaxValue, ErrorMessage = "{0} must be greater than or equal to {1}")] int pageSize = 10)
+        {
+            try
+            {
+                var cats = await _catService.GetCatsAsync(page, pageSize).ConfigureAwait(true);
 
-        ///// <summary>
-        ///// Downloads the cat image.
-        ///// </summary>
-        ///// <param name="catId">The cat identifier parameter.</param>
-        ///// <returns></returns>
-        //public async Task<IActionResult> DownloadCatImageAsync(int catId)
-        //{
-        //    //try
-        //    //{
-        //    //    string apiUrl = "https://localhost:7046/api/candidates/" + catId;
+                return Ok(cats);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
 
-        //    //    using (HttpClient client = new HttpClient())
-        //    //    {
-        //    //        client.BaseAddress = new Uri(apiUrl);
-        //    //        client.DefaultRequestHeaders.Accept.Clear();
-        //    //        client.DefaultRequestHeaders.Accept.Add(
-        //    //            new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+        /// <summary>
+        /// Downloads the cat image.
+        /// </summary>
+        /// <param name="catId">The cat identifier parameter.</param>
+        /// <returns></returns>
+        [HttpGet("downloadFile/{catId:int}", Name = nameof(DownloadFileAsync))]
+        [SwaggerResponse(StatusCodes.Status200OK, "Cat fetched successfully!", typeof(List<GetCatApiResponseDto>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DownloadFileAsync(int catId)
+        {
+            try
+            {
+                var cat = await _catService.GetCatAsync(catId).ConfigureAwait(true);
 
-        //    //        HttpResponseMessage response = await client.GetAsync(apiUrl);
-        //    //        if (response.IsSuccessStatusCode)
-        //    //        {
-        //    //            var candidate = response.Content.ReadAsAsync<GetCatResponseDto>().Result;
-        //    //            string ext = Path.GetExtension(candidate.CvFilename);
-        //    //            //var contentType = (ext == ".pdf") ? MimeTypes.ApplicationPdf : MimeTypes.MsWord;
-        //    //            return File(candidate.CV, contentType, candidate.CvFilename);
-        //    //        }
-        //    //    }
-        //    //}
-        //    //catch (Exception e)
-        //    //{
-        //    //    throw;
-        //    //}
-        //    return new EmptyResult();
-        //}
+                if (System.IO.File.Exists(cat.ImagePath))
+                {
+                    return File(System.IO.File.OpenRead(cat.ImagePath), MimeTypes.Png, Path.GetFileName(cat.ImagePath));
+                }
+                return NotFound();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
 
         /// <summary>
         /// Gets and serializes cats from CaaS API.
         /// </summary>
         /// <param name="catCount">How many cats to fetch.</param>
         /// <returns></returns>
-        static async Task<List<GetCatApiResponseDto>> FetchCatsFromApi(int catCount)
+        static async Task<List<GetCatApiResponseDto>> FetchCatsFromApiAsync(int catCount)
         {
             var data = new List<GetCatApiResponseDto>();
 
             while (data.Count < catCount)
             {
                 //This limit is set conditionally, in order in last iteration to get only remaining number of cats.
-                var limit = (data.Any() && data.Count > 10 && data.Count < catCount) ? 10 - (catCount - data.Count) : 10;
+                var limit = catCount;
+                if (limit > 10)
+                {
+                    limit = (data.Any() && data.Count > 10 && data.Count < catCount) ? 10 - (catCount - data.Count) : 10;
+                }
 
                 var url = $"https://api.thecatapi.com/v1/images/search?limit={limit}&api_key=live_MVgybJvA7wRmh81FWs3fLgD1BudHkEvMI79gPbSWOtJHanQfOdPhARvxjEnBwJJZ";
                 using var httpClient = new HttpClient();
@@ -175,5 +212,27 @@ namespace StealAllTheCats.API.Controllers
 
             return data;
         }
+
+        /// <summary>
+        /// Gets the images from CaaS API and store it to file location.
+        /// </summary>
+        /// <param name="catCount">How many cats to fetch.</param>
+        /// <returns></returns>
+        private static async Task GetImageFilesFromApiAsync(List<AddCatRequestDto> addCatList)
+        {
+            foreach (var item in addCatList)
+            {
+                using (var client = new HttpClient())
+                {
+                    using (var response = await client.GetAsync(item.Url))
+                    {
+                        byte[] imageBytes =
+                            await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                        item.Image = imageBytes;
+                    }
+                }
+            }
+        }
     }
+
 }

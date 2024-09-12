@@ -1,4 +1,7 @@
-﻿using StealAllTheCats.Dto.Cats;
+﻿
+
+using StealAllTheCats.Data.Entities;
+using StealAllTheCats.Dto.Cats;
 using StealAllTheCats.Dto.Tags;
 
 namespace StealAllTheCats.API;
@@ -6,19 +9,25 @@ public class MappingProfile : AutoMapper.Profile
 {
     public MappingProfile()
     {
-        ////Cats
-        //CreateMap<GetCatResponseDto, CatViewModel>()
-        //    .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => src.Tag.Name));
+        //Cats
+        CreateMap<GetCatApiResponseDto, AddCatRequestDto>()
+            .ForMember(dest => dest.CatApiId, opt => opt.MapFrom(src => src.Id));
 
-        //CreateMap<GetCatResponseDto, AddCatViewModel>();
-        //CreateMap<GetCatResponseDto, AddCatRequestDto>()
-        //    .ForMember(dest => dest.CvFilename, opt => opt.MapFrom(src => src.CV.FileName))
-        //    .ForMember(dest => dest.CV, opt => opt.MapFrom(src => FileConverter.ConvertToBase64(src.CV)));
+        CreateMap<AddCatRequestDto, Cat>();
 
-        ////Tags
-        //CreateMap<GetTagResponseDto, TagViewModel>();
-        //CreateMap<GetTagResponseDto, AddTagViewModel>();
-        //CreateMap<AddTagViewModel, AddTagRequestDto>();
+        CreateMap<Cat, GetCatResponseDto>();
+
+        CreateMap<GetCatResponseDto, Cat>();
+
+
+        //Breeds
+        CreateMap<GetBreedResponseDto, AddBreedRequestDto>();
+
+
+        //Tags
+        CreateMap<GetTagResponseDto, Tag>();
+
+        CreateMap<Tag, GetTagResponseDto>();
     }
 }
 

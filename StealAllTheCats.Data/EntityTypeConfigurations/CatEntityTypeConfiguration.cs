@@ -30,11 +30,10 @@ namespace StealAllTheCats.Data.EntityTypeConfigurations
             builder.Property(c => c.Height)
                 .IsRequired();
 
-            builder.Property(c => c.Image)
-                .IsRequired()
-                .HasColumnType("blob");
+            builder.Property(c => c.ImagePath)
+                .IsRequired();
 
-            builder.Property(c => c.ImageFilepath)
+            builder.Property(c => c.Url)
                 .IsRequired()
                 .HasMaxLength(256);
 
