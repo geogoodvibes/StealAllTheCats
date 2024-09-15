@@ -92,3 +92,25 @@ GET /api/cats?tag=playful&page=1&pageSize=10
 Η εφαρμογή ακολουθεί βασικές αρχές της αρχιτεκτονικής REST και έχει υλοποιηθεί με στόχο να είναι επεκτάσιμη και εύκολη στη συντήρηση. Έχουν επίσης υλοποιηθεί κανόνες επικύρωσης των δεδομένων που εξασφαλίζουν ότι δεν καταχωρούνται διπλές εγγραφές στη βάση δεδομένων.
 
 Επιπλέον, η λύση περιλαμβάνει δυνατότητα για **paging** και αναζήτηση γατών με βάση το tag τους, επιτρέποντας την εύκολη διαχείριση μεγάλου όγκου δεδομένων.
+
+**xUnit Tests**
+
+• FetchCats_ReturnsBadRequest_WhenExceptionThrown - Εξασφαλίζει ότι η μέθοδος FetchCats επιστρέφει Bad Request όταν προκύψει εξαίρεση κατά την προσθήκη γατών στη βάση δεδομένων.
+
+• GetCat_ReturnsOk_WhenCatExists - Επαληθεύει ότι η μέθοδος GetCat επιστρέφει 200 OK όταν υπάρχει μια γάτα με το συγκεκριμένο ID.
+
+• GetCat_ReturnsNotFound_WhenCatDoesNotExist - Εξασφαλίζει ότι η μέθοδος GetCat επιστρέφει 404 Not Found όταν η ζητούμενη γάτα δεν υπάρχει στη βάση δεδομένων.
+
+• GetCatsByTag_ReturnsOk_WhenCatsExist - Δοκιμάζει ότι η μέθοδος GetCatsByTag επιστρέφει 200 OK όταν υπάρχουν γάτες που αντιστοιχούν στην ετικέτα.
+
+• GetCatsByTag_ReturnsNotFound_WhenNoCatsExist - Εξασφαλίζει ότι η μέθοδος GetCatsByTag επιστρέφει 404 Not Found όταν δεν βρεθούν γάτες με την παρεχόμενη ετικέτα.
+
+• DownloadFileAsync_ReturnsNotFound_WhenImageDoesNotExist - Επικυρώνει ότι η μέθοδος DownloadFileAsync επιστρέφει 404 Not Found αν η εικόνα της γάτας δεν υπάρχει στον διακομιστή.
+
+• FetchCats_ReturnsBadRequest_WhenInvalidCatCount - Δοκιμάζει ότι η μέθοδος FetchCats επιστρέφει 400 Bad Request όταν παρέχεται μη έγκυρος αριθμός γατών (αρνητικός).
+
+
+**Running Tests**
+
+dotnet test
+
