@@ -35,11 +35,7 @@
 ```dotnet ef database update```
 
 4.  **Εκκίνηση της εφαρμογής**  
-    Για να ξεκινήσετε την εφαρμογή:
-
-```dotnet run```
-
-Ή απλώς Run απο το Visual Studio στο https profile.
+Run απο το Visual Studio στο https profile.
 
 5.  **Swagger**  **API**  **Documentation**Για να δείτε την τεκμηρίωση του API, ανοίξτε το [https://localhost:7256/swagger](https://localhost:7256/swagger) στον browser σας.
 
