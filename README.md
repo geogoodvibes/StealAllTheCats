@@ -26,7 +26,7 @@
 
 Εάν θέλετε να χρησιμοποιήσετε in-memory βάση δεδομένων, απλώς ρυθμίστε το στο Startup.cs όπως παρακάτω:
 
-```services.AddDbContext<StealAllTheCatsContext>(options => options.UseInMemoryDatabase("StealAllTheCatsDb "));```
+```services.AddDbContext<StealAllTheCatsContext>(options => options.UseInMemoryDatabase("StealAllTheCatsDb"));```
 
 Θα βρείτε σχολιασμένο τον κώδικα σε δύο σημεία μέσα στο project, μπορείτε να το ξεσχολιάσετε και να το γυρίσετε σε InMemoryDB.
 
