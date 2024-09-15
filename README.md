@@ -16,34 +16,28 @@
 
 1.  **Clone**  **repo**
 
-git clone https://github.com/geogoodvibes/StealAllTheCats.git
+```git clone https://github.com/geogoodvibes/StealAllTheCats.git```
 
 2.  **Ρύθμιση βάσης δεδομένων**Το project είναι ρυθμισμένο για χρήση με **Microsoft**  **SQL**  **Server**. Μπορείτε είτε να συνδέσετε ένα υπάρχον SQL  Server  instance είτε να χρησιμοποιήσετε in-memory βάση δεδομένων. Ελέγξτε το αρχείο appsettings.json και τροποποιήστε τις ρυθμίσεις σύνδεσης (ConnectionStrings) στο δικό σας SQL  Server.
 
 Εάν προτιμάτε να χρησιμοποιήσετε SQL  Server:
 
-"ConnectionStrings": {
-
-"DefaultConnection":  "DefaultConnection": "Server=localhost,1433;Database=CatsDb;User ID=sa;Password=Tsirigot@ki1987!;TrustServerCertificate=true"
-
-}
+```"ConnectionStrings": {"DefaultConnection":  "DefaultConnection": "Server=localhost,1433;Database=CatsDb;User ID=sa;Password=Tsirigot@ki1987!;TrustServerCertificate=true"}```
 
 Εάν θέλετε να χρησιμοποιήσετε in-memory βάση δεδομένων, απλώς ρυθμίστε το στο Startup.cs όπως παρακάτω:
 
-services.AddDbContext< StealAllTheCatsContext >(options =>
-
-options.UseInMemoryDatabase("StealAllTheCatsDb "));
+```services.AddDbContext<StealAllTheCatsContext>(options => options.UseInMemoryDatabase("StealAllTheCatsDb "));```
 
 Θα βρείτε σχολιασμένο τον κώδικα σε δύο σημεία μέσα στο project, μπορείτε να το ξεσχολιάσετε και να το γυρίσετε σε InMemoryDB.
 
 3.  **Ενημέρωση Βάσης Δεδομένων** Χρησιμοποιήστε το Entity  Framework  Core για να δημιουργήσετε τη βάση δεδομένων: (το path να βρίσκεται στο StealThecats.API  project)
 
-dotnet ef database update
+```dotnet ef database update```
 
 4.  **Εκκίνηση της εφαρμογής**  
     Για να ξεκινήσετε την εφαρμογή:
 
-dotnet run
+```dotnet run```
 
 Ή απλώς Run απο το Visual Studio.
 
@@ -111,6 +105,7 @@ GET /api/cats?tag=playful&page=1&pageSize=10
 
 
 **Running Tests**
+Στο Path του test project:
 
-dotnet test
+```dotnet test```
 
