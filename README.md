@@ -39,7 +39,7 @@
 
 ```dotnet run```
 
-Ή απλώς Run απο το Visual Studio.
+Ή απλώς Run απο το Visual Studio στο https profile.
 
 5.  **Swagger**  **API**  **Documentation**Για να δείτε την τεκμηρίωση του API, ανοίξτε το [https://localhost:7256/swagger](https://localhost:7256/swagger) στον browser σας.
 
