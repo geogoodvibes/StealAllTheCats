@@ -22,7 +22,12 @@
 
 Εάν προτιμάτε να χρησιμοποιήσετε SQL  Server:
 
-```"ConnectionStrings": {"DefaultConnection":  "DefaultConnection": "Server=localhost,1433;Database=CatsDb;User ID=sa;Password=Tsirigot@ki1987!;TrustServerCertificate=true"}```
+```
+"ConnectionStrings": {
+  "DefaultConnection":     
+"DefaultConnection": "Server=localhost,1433;Database=CatsDb;User ID=sa;Password=Tsirigot@ki1987!;TrustServerCertificate=true"
+}
+```
 
 Εάν θέλετε να χρησιμοποιήσετε in-memory βάση δεδομένων, απλώς ρυθμίστε το στο Startup.cs όπως παρακάτω:
 
