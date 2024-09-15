@@ -45,7 +45,9 @@
 
 Ή Run απο το Visual Studio στο https profile.
 
-6.  **Swagger**  **API**  **Documentation**Για να δείτε την τεκμηρίωση του API, ανοίξτε το [https://localhost:7256/swagger](https://localhost:7256/swagger) στον browser σας.
+6.  **Swagger**  **API**  **Documentation**
+
+Για να δείτε την τεκμηρίωση του API, ανοίξτε το [https://localhost:7256/swagger](https://localhost:7256/swagger) στον browser σας.
 
 **API Endpoints**
 
