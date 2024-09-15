@@ -184,11 +184,14 @@ namespace StealAllTheCats.API.Controllers
                     return NotFound();
                 }
 
-                if (System.IO.File.Exists(Path.GetFileName(cat.ImagePath)))
+                if (System.IO.File.Exists(cat.ImagePath))
                 {
                     var file = File(System.IO.File.OpenRead(cat.ImagePath), MimeTypes.Png, Path.GetFileName(cat.ImagePath));
-                    if (file.FileStream.Length < 1) { return NotFound(); }
-                    return Ok(file);
+                    if (file.FileStream.Length < 1)
+                    {
+                        return NotFound();
+                    }
+                    return file;
                 }
                 else
                 {
