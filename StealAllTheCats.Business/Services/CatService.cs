@@ -101,12 +101,9 @@ namespace StealAllTheCats.Business.Services
         {
             try
             {
-                IQueryable<Cat> catQueryable = _context.Cats
+                var catResult = await _context.Cats
                     .Include(x => x.Tags)
-                    .AsNoTracking();
-
-                var catResult = await catQueryable.FirstOrDefaultAsync(d => d.Id == catId)
-                    .ConfigureAwait(false);
+                    .FirstOrDefaultAsync(d => d.Id == catId);
 
                 var cat = _mapper.Map<GetCatResponseDto>(catResult);
 

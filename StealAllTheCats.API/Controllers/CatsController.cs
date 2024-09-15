@@ -46,6 +46,11 @@ namespace StealAllTheCats.API.Controllers
         {
             try
             {
+                if (catCount < 1)
+                {
+                    return BadRequest(catCount);
+                }
+
                 List<GetCatApiResponseDto> data = await FetchCatsFromApiAsync(catCount);
 
                 var addCatList = _mapper.Map<List<AddCatRequestDto>>(data);
@@ -59,11 +64,11 @@ namespace StealAllTheCats.API.Controllers
                 {
                     return Ok(addCatList);
                 }
-                return StatusCode(StatusCodes.Status404NotFound);
+                return NotFound();
             }
             catch (Exception e)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError);
+                return BadRequest(e);
             }
         }
 
@@ -83,7 +88,11 @@ namespace StealAllTheCats.API.Controllers
             try
             {
                 var cat = await _catService.GetCatAsync(catId).ConfigureAwait(true);
-                return Ok(cat);
+                if (cat != null)
+                    return Ok(cat);
+                else
+                    return NotFound();
+
             }
             catch (Exception e)
             {
@@ -111,6 +120,10 @@ namespace StealAllTheCats.API.Controllers
             {
                 var cats = await _catService.GetCatsAsync(tag, page, pageSize).ConfigureAwait(true);
 
+                if (cats == null || !cats.Items.Any())
+                {
+                    return NotFound();
+                }
                 return Ok(cats);
             }
             catch (Exception e)
@@ -139,6 +152,10 @@ namespace StealAllTheCats.API.Controllers
             {
                 var cats = await _catService.GetCatsAsync(page, pageSize).ConfigureAwait(true);
 
+                if (cats.Items == null || !cats.Items.Any())
+                {
+                    return NotFound();
+                }
                 return Ok(cats);
             }
             catch (Exception e)
@@ -162,12 +179,21 @@ namespace StealAllTheCats.API.Controllers
             try
             {
                 var cat = await _catService.GetCatAsync(catId).ConfigureAwait(true);
-
-                if (System.IO.File.Exists(cat.ImagePath))
+                if (cat == null || string.IsNullOrEmpty(cat.ImagePath))
                 {
-                    return File(System.IO.File.OpenRead(cat.ImagePath), MimeTypes.Png, Path.GetFileName(cat.ImagePath));
+                    return NotFound();
                 }
-                return NotFound();
+
+                if (System.IO.File.Exists(Path.GetFileName(cat.ImagePath)))
+                {
+                    var file = File(System.IO.File.OpenRead(cat.ImagePath), MimeTypes.Png, Path.GetFileName(cat.ImagePath));
+                    if (file.FileStream.Length < 1) { return NotFound(); }
+                    return Ok(file);
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
             catch (Exception e)
             {
@@ -220,6 +246,10 @@ namespace StealAllTheCats.API.Controllers
         /// <returns></returns>
         private static async Task GetImageFilesFromApiAsync(List<AddCatRequestDto> addCatList)
         {
+            if (addCatList == null)
+            {
+                throw new Exception("Cat list is empty.");
+            }
             foreach (var item in addCatList)
             {
                 using (var client = new HttpClient())

@@ -30,7 +30,7 @@ namespace StealAllTheCats.Utilities
         /// <summary>
         /// Gets the list of items.
         /// </summary>
-        public List<T> Items { get; private set; }
+        public List<T> Items { get; set; }
 
         /// <summary>
         /// PaginatedResult Constructor.
