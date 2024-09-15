@@ -24,9 +24,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "Steal The Cats API",
+        Description = "An ASP.NET Core Web API for Stealing Cat Photos.",
+        Contact = new OpenApiContact
+        {
+            Name = "Georgia Tsirigotaki",
+            Url = new Uri("https://www.linkedin.com/in/georgia-tsirigotaki/")
+        }
+    });
     c.EnableAnnotations();
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Steal The Cats API", Version = "v1" });
-
 });
 
 var app = builder.Build();
