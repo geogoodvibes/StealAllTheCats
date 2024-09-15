@@ -16,34 +16,28 @@
 
 1.  **Clone**  **repo**
 
-git clone https://github.com/geogoodvibes/StealAllTheCats.git
+```git clone https://github.com/geogoodvibes/StealAllTheCats.git```
 
 2.  **Ρύθμιση βάσης δεδομένων**Το project είναι ρυθμισμένο για χρήση με **Microsoft**  **SQL**  **Server**. Μπορείτε είτε να συνδέσετε ένα υπάρχον SQL  Server  instance είτε να χρησιμοποιήσετε in-memory βάση δεδομένων. Ελέγξτε το αρχείο appsettings.json και τροποποιήστε τις ρυθμίσεις σύνδεσης (ConnectionStrings) στο δικό σας SQL  Server.
 
 Εάν προτιμάτε να χρησιμοποιήσετε SQL  Server:
 
-"ConnectionStrings": {
-
-"DefaultConnection":  "DefaultConnection": "Server=localhost,1433;Database=CatsDb;User ID=sa;Password=Tsirigot@ki1987!;TrustServerCertificate=true"
-
-}
+```"ConnectionStrings": {"DefaultConnection":  "DefaultConnection": "Server=localhost,1433;Database=CatsDb;User ID=sa;Password=Tsirigot@ki1987!;TrustServerCertificate=true"}```
 
 Εάν θέλετε να χρησιμοποιήσετε in-memory βάση δεδομένων, απλώς ρυθμίστε το στο Startup.cs όπως παρακάτω:
 
-services.AddDbContext< StealAllTheCatsContext >(options =>
-
-options.UseInMemoryDatabase("StealAllTheCatsDb "));
+```services.AddDbContext<StealAllTheCatsContext>(options => options.UseInMemoryDatabase("StealAllTheCatsDb "));```
 
 Θα βρείτε σχολιασμένο τον κώδικα σε δύο σημεία μέσα στο project, μπορείτε να το ξεσχολιάσετε και να το γυρίσετε σε InMemoryDB.
 
 3.  **Ενημέρωση Βάσης Δεδομένων** Χρησιμοποιήστε το Entity  Framework  Core για να δημιουργήσετε τη βάση δεδομένων: (το path να βρίσκεται στο StealThecats.API  project)
 
-dotnet ef database update
+```dotnet ef database update```
 
 4.  **Εκκίνηση της εφαρμογής**  
     Για να ξεκινήσετε την εφαρμογή:
 
-dotnet run
+```dotnet run```
 
 Ή απλώς Run απο το Visual Studio.
 
@@ -92,3 +86,26 @@ GET /api/cats?tag=playful&page=1&pageSize=10
 Η εφαρμογή ακολουθεί βασικές αρχές της αρχιτεκτονικής REST και έχει υλοποιηθεί με στόχο να είναι επεκτάσιμη και εύκολη στη συντήρηση. Έχουν επίσης υλοποιηθεί κανόνες επικύρωσης των δεδομένων που εξασφαλίζουν ότι δεν καταχωρούνται διπλές εγγραφές στη βάση δεδομένων.
 
 Επιπλέον, η λύση περιλαμβάνει δυνατότητα για **paging** και αναζήτηση γατών με βάση το tag τους, επιτρέποντας την εύκολη διαχείριση μεγάλου όγκου δεδομένων.
+
+**xUnit Tests**
+
+• FetchCats_ReturnsBadRequest_WhenExceptionThrown - Εξασφαλίζει ότι η μέθοδος FetchCats επιστρέφει Bad Request όταν προκύψει εξαίρεση κατά την προσθήκη γατών στη βάση δεδομένων.
+
+• GetCat_ReturnsOk_WhenCatExists - Επαληθεύει ότι η μέθοδος GetCat επιστρέφει 200 OK όταν υπάρχει μια γάτα με το συγκεκριμένο ID.
+
+• GetCat_ReturnsNotFound_WhenCatDoesNotExist - Εξασφαλίζει ότι η μέθοδος GetCat επιστρέφει 404 Not Found όταν η ζητούμενη γάτα δεν υπάρχει στη βάση δεδομένων.
+
+• GetCatsByTag_ReturnsOk_WhenCatsExist - Δοκιμάζει ότι η μέθοδος GetCatsByTag επιστρέφει 200 OK όταν υπάρχουν γάτες που αντιστοιχούν στην ετικέτα.
+
+• GetCatsByTag_ReturnsNotFound_WhenNoCatsExist - Εξασφαλίζει ότι η μέθοδος GetCatsByTag επιστρέφει 404 Not Found όταν δεν βρεθούν γάτες με την παρεχόμενη ετικέτα.
+
+• DownloadFileAsync_ReturnsNotFound_WhenImageDoesNotExist - Επικυρώνει ότι η μέθοδος DownloadFileAsync επιστρέφει 404 Not Found αν η εικόνα της γάτας δεν υπάρχει στον διακομιστή.
+
+• FetchCats_ReturnsBadRequest_WhenInvalidCatCount - Δοκιμάζει ότι η μέθοδος FetchCats επιστρέφει 400 Bad Request όταν παρέχεται μη έγκυρος αριθμός γατών (αρνητικός).
+
+
+**Running Tests**
+Στο Path του test project:
+
+```dotnet test```
+
